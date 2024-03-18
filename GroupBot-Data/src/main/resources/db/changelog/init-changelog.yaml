@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1704585412978-1
+      author: Reiko
+      changes:
+        - empty: { }
