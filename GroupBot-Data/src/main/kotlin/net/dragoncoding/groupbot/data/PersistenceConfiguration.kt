@@ -1,27 +1,29 @@
 package net.dragoncoding.groupbot.data
 
 import net.dragoncoding.groupbot.common.utils.KeystoreReader
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
-import org.springframework.core.env.Environment
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import javax.sql.DataSource
 
 @Configuration
+@EntityScan("net.dragoncoding.groupbot.data.models")
+@EnableJpaRepositories("net.dragoncoding.groupbot.data.repository")
 @PropertySource("classpath:persistence.properties")
 @PropertySource("classpath:liquibase.properties")
 class PersistenceConfiguration {
-    companion object {
-        var logger: Logger = LoggerFactory.getLogger(PersistenceConfiguration::class.java)
-    }
+    @Value("\${spring.datasource.driverClassName:#{null}}")
+    var dbDriverClassName: String? = null
 
-    @Autowired
-    lateinit var env: Environment
+    @Value("\${spring.datasource.url:#{null}}")
+    var dbUrl: String? = null
+
+    @Value("\${spring.datasource.username:#{null}}")
+    var dbUsername: String? = null
 
     @Value("\${groupbot.keystore.file}")
     lateinit var keystore: String
@@ -34,11 +36,10 @@ class PersistenceConfiguration {
         val dataSource = DriverManagerDataSource()
 
         dataSource.setDriverClassName(
-            env.getProperty("driverClassName")
-                ?: throw IllegalStateException("No driverClassName configured")
+            dbDriverClassName ?: throw IllegalStateException("No driverClassName configured")
         )
-        dataSource.url = env.getProperty("url") ?: throw IllegalStateException("No db url configured")
-        dataSource.username = env.getProperty("user") ?: throw IllegalStateException("No db user configured")
+        dataSource.url = dbUrl ?: throw IllegalStateException("No db url configured")
+        dataSource.username = dbUsername ?: throw IllegalStateException("No db user configured")
         dataSource.password = KeystoreReader.getValueFromKeystore("db-password", keystorePass, keystore)
 
         return dataSource

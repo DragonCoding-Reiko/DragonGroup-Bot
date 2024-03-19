@@ -18,6 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
+/.jpb/
 
 ### NetBeans ###
 /nbproject/private/
@@ -34,4 +35,4 @@ build/
 
 ### Project specific ###
 /groupbot-store.p12
-/groupBot.db
+/groupBot_db.*.db
