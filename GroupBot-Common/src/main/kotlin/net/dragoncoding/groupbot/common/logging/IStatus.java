@@ -7,6 +7,10 @@ public interface IStatus {
 
 	Throwable getException();
 
+	default boolean isNotOk() {
+		return !isOk();
+	}
+
 	default boolean isOk() {
 		return getStatusCode().isOk();
 	}

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import javax.sql.DataSource
@@ -17,7 +18,7 @@ lateinit var source: DataSource
 @Autowired
 lateinit var bot: GroupBot
 
-val timer = Executors.newScheduledThreadPool(3)
+val timer: ScheduledExecutorService = Executors.newScheduledThreadPool(3)
 val taskList = ArrayList<ScheduledFuture<*>>()
 
 fun main(args: Array<String>) {

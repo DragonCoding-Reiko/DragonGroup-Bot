@@ -36,7 +36,7 @@ class SlashCommandListener : ListenerAdapter(), IDiscordEventListener {
         }
 
         val executionStatus = command.onCommand(event)
-        if (!executionStatus.isOk) return
+        if (executionStatus.isNotOk) return
 
         if (command.hasButtonInteraction()) {
             commandsWithButtonResponse.add(command)
@@ -59,7 +59,7 @@ class SlashCommandListener : ListenerAdapter(), IDiscordEventListener {
         commandsWithButtonResponse.removeIf { event.componentId == it.buttonId }
 
         val executionStatus = buttonCommand.onButton(event)
-        if (!executionStatus.isOk) return
+        if (executionStatus.isNotOk) return
     }
 
     override fun onModalInteraction(event: ModalInteractionEvent) {
@@ -74,7 +74,7 @@ class SlashCommandListener : ListenerAdapter(), IDiscordEventListener {
         commandsWithModalResponse.removeIf { event.modalId == it.buttonId }
 
         val executionStatus = modalCommand.onModal(event)
-        if (!executionStatus.isOk) return
+        if (executionStatus.isNotOk) return
     }
 
 

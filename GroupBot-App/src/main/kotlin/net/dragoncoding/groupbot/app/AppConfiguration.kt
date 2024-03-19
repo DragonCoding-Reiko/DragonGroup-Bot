@@ -8,5 +8,4 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(PersistenceConfiguration::class)
 @ComponentScan(basePackages = ["net.dragoncoding.groupbot"])
-class AppConfiguration {
-}
+class AppConfiguration

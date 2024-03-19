@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import java.util.*
 
+@Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractBot : IDiscordBot {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,7 +31,7 @@ abstract class AbstractBot : IDiscordBot {
     @Value("\${groupbot.keystore.password}")
     private lateinit var keystorePass: String
 
-    private lateinit var shardManager: ShardManager
+    protected lateinit var shardManager: ShardManager
 
     /**
      * Starts the bot as Spring bean after Spring has loaded its context
@@ -168,7 +169,9 @@ abstract class AbstractBot : IDiscordBot {
      *
      * @see AbstractBot.afterPropertiesSet
      */
-    protected open fun onBotReady() {}
+    @Suppress("EmptyMethod")
+    protected open fun onBotReady() {
+    }
 
     /**
      * Gets called before the bots [ShardManager] gets shut down
@@ -176,5 +179,7 @@ abstract class AbstractBot : IDiscordBot {
      * @see AbstractBot.destroy
      * @see ShardManager.shutdown
      */
-    protected open fun onBotShutdown() {}
+    @Suppress("EmptyMethod")
+    protected open fun onBotShutdown() {
+    }
 }

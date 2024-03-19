@@ -6,4 +6,4 @@ import org.springframework.stereotype.Component
 @Target(AnnotationTarget.CLASS)
 @Scope("prototype")
 @Component
-annotation class DiscordCommand()
+annotation class DiscordCommand
