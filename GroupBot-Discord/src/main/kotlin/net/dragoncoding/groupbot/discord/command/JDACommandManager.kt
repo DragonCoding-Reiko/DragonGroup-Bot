@@ -14,14 +14,22 @@ class JDACommandManager(
     private val commandAnnotation: Class<out Annotation>
 ) {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
     private var loggingEnabled: Boolean = false
+    private var logAddedCommands: Boolean = false
+    private var logExcludeWarnings: Boolean = false
+
     private val excludeAnnotations: HashSet<Class<out Annotation>> = HashSet()
 
     private var commands: HashSet<IDiscordSlashCommand> = HashSet()
 
     fun enableLogging() = apply { this.loggingEnabled = true }
     fun disableLogging() = apply { this.loggingEnabled = false }
+
+    fun showCommandLogging() = apply { this.logAddedCommands = true }
+    fun disableCommandLogging() = apply { this.logAddedCommands = false }
+
+    fun showExcludeWarning() = apply { this.logExcludeWarnings = true }
+    fun suppressExclusionWarning() = apply { this.logExcludeWarnings = false }
 
     /**
      * Any annotation added to this list will exclude any command annotated with it
@@ -35,17 +43,40 @@ class JDACommandManager(
     fun getCommands() = setOf(*this.commands.toTypedArray())
 
     fun load(context: ApplicationContext): JDACommandManager {
+        debug(
+            "Loading discord commands in package '{}' with annotation '{}' and none of {}",
+            packageToScan, commandAnnotation.name, excludeAnnotations.map { it.name }.toSet()
+        )
         this.commands.clear()
 
-        AnnotatedTypeScanner(
+        val scanner = AnnotatedTypeScanner(
             false,
             commandAnnotation
-        ).findTypes(packageToScan)
-            .filter { command -> excludeAnnotations.none { command.isAnnotationPresent(it) } }
-            .filter { IDiscordSlashCommand::class.java.isAssignableFrom(it) }
-            .filterIsInstance<Class<IDiscordSlashCommand>>()
+        )
+
+        var foundClasses = scanner.findTypes(packageToScan)
+        val totalSize = foundClasses.size
+        debug("Found {} class[es] with command annotation in the selected package", totalSize)
+
+        foundClasses =
+            foundClasses.filter { command -> excludeAnnotations.none { command.isAnnotationPresent(it) } }.toSet()
+        val afterExclusionSize = foundClasses.size
+        if (totalSize - afterExclusionSize > 0 && logExcludeWarnings)
+            warn("Excluded {} class[es] because of exclude annotations", totalSize - afterExclusionSize)
+
+        foundClasses = foundClasses.filter { IDiscordSlashCommand::class.java.isAssignableFrom(it) }.toSet()
+        if (afterExclusionSize - foundClasses.size > 0 && logExcludeWarnings)
+            warn(
+                "Excluded {} class[es] because they do not implement '{}'",
+                afterExclusionSize - foundClasses.size, IDiscordSlashCommand::class.java.name
+            )
+
+        foundClasses.filterIsInstance<Class<IDiscordSlashCommand>>()
             .forEach {
-                this.commands.add(context.getBean(it))
+                val command = context.getBean(it)
+                if (logAddedCommands)
+                    info("Adding Command '{}' (JDA-Name: {})", it.name, command.fullName)
+                this.commands.add(command)
             }
 
         return this
@@ -60,7 +91,6 @@ class JDACommandManager(
                     .addOptions(*commandToAdd.getCommandOptions().toTypedArray())
                 continue
             }
-
             var commandRoot = commands[commandToAdd.parentCommandName]
             if (commandRoot == null) {
                 commandRoot = Commands.slash(commandToAdd.parentCommandName!!, "Something")
@@ -104,4 +134,18 @@ class JDACommandManager(
         this.commands.clear()
     }
 
+    private fun debug(message: String, vararg args: Any) {
+        if (loggingEnabled)
+            logger.debug(message, *args)
+    }
+
+    private fun info(message: String, vararg args: Any) {
+        if (loggingEnabled)
+            logger.info(message, *args)
+    }
+
+    private fun warn(message: String, vararg args: Any) {
+        if (loggingEnabled)
+            logger.warn(message, *args)
+    }
 }

@@ -26,8 +26,10 @@ class CommandManager : InitializingBean {
             "net.dragoncoding.groupbot.discord.command.impls",
             DiscordCommand::class.java
         )
-            .enableLogging()
             .excludeAnnotations(IgnoreCommand::class.java)
+            .enableLogging()
+            .showCommandLogging()
+            .showExcludeWarning()
             .load(context)
 
         jdaCommandManager.getCommands().forEach {
