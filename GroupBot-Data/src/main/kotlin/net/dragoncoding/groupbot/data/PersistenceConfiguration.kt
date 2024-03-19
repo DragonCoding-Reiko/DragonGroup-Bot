@@ -14,7 +14,6 @@ import javax.sql.DataSource
 @EntityScan("net.dragoncoding.groupbot.data.models")
 @EnableJpaRepositories("net.dragoncoding.groupbot.data.repository")
 @PropertySource("classpath:persistence.properties")
-@PropertySource("classpath:liquibase.properties")
 class PersistenceConfiguration {
     @Value("\${spring.datasource.driverClassName:#{null}}")
     var dbDriverClassName: String? = null
