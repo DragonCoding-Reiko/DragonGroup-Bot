@@ -1,6 +1,89 @@
+#file: noinspection SpellCheckingInspection
 databaseChangeLog:
   - changeSet:
-      id: 1704585412978-1
+      id: 1710879121863-1
       author: Reiko
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
-        - empty: { }
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_discordguild
+                  name: guild_id
+                  type: BIGINT
+              - column:
+                  name: joined
+                  type: BOOLEAN
+            tableName: discord_guild
+  - changeSet:
+      id: 1710879121863-2
+      author: Reiko
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_discordguildchannel
+                  name: channel_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: type
+                  type: VARCHAR(255)
+            tableName: discord_guild_channel
+  - changeSet:
+      id: 1710879121863-3
+      author: Reiko
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: discord_guild_guild_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: special_channels_channel_id
+                  type: BIGINT
+            tableName: discord_guild_special_channels
+  - changeSet:
+      id: 1710879121863-4
+      author: Reiko
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addUniqueConstraint:
+            columnNames: discord_guild_guild_id, special_channels_channel_id
+            constraintName: uc_discord_guild_special_channels_diguspch
+            tableName: discord_guild_special_channels
+  - changeSet:
+      id: 1710879121863-5
+      author: Reiko
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: discord_guild_guild_id
+            baseTableName: discord_guild_special_channels
+            constraintName: fk_disguispecha_on_discord_guild
+            referencedColumnNames: guild_id
+            referencedTableName: discord_guild
+  - changeSet:
+      id: 1710879121863-6
+      author: Reiko
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: special_channels_channel_id
+            baseTableName: discord_guild_special_channels
+            constraintName: fk_disguispecha_on_discord_guild_channel
+            referencedColumnNames: channel_id
+            referencedTableName: discord_guild_channel

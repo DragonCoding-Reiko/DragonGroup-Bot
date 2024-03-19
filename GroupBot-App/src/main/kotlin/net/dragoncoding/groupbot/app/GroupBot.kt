@@ -1,27 +1,30 @@
 package net.dragoncoding.groupbot.app
 
+import net.dragoncoding.groupbot.data.repository.DiscordGuildRepository
 import net.dragoncoding.groupbot.discord.AbstractBot
 import net.dragoncoding.groupbot.discord.controllers.CommandManager
+import net.dragoncoding.groupbot.discord.controllers.GuildListener
 import net.dragoncoding.groupbot.discord.controllers.SlashCommandListener
 import net.dragoncoding.groupbot.discord.interfaces.IDiscordEventListener
+import net.dragoncoding.groupbot.discord.tasks.SyncGuildsOnStartupTask
+import net.dragoncoding.groupbot.discord.utils.JDAUtils
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
 class GroupBot : AbstractBot() {
-    @Autowired
-    private lateinit var commandManager: CommandManager
 
     @Autowired
-    private lateinit var slashCommandListener: SlashCommandListener
+    private lateinit var context: ApplicationContext
 
     override fun getCommands(): Collection<SlashCommandData> {
-        return commandManager.jdaCommandManager.buildJDACommands()
+        return context.getBean(CommandManager::class.java).jdaCommandManager.buildJDACommands()
     }
 
     override fun getGatewayIntents(): EnumSet<GatewayIntent> {
@@ -47,7 +50,8 @@ class GroupBot : AbstractBot() {
 
     override fun getEventListeners(): Collection<IDiscordEventListener> {
         return listOf(
-            slashCommandListener
+            context.getBean(SlashCommandListener::class.java),
+            context.getBean(GuildListener::class.java)
         )
     }
 
@@ -56,7 +60,11 @@ class GroupBot : AbstractBot() {
     }
 
     override fun onBotReady() {
-        super.onBotReady()
+        SyncGuildsOnStartupTask(
+            shardManager.guilds.map { it.idLong },
+            context.getBean(DiscordGuildRepository::class.java),
+            context.getBean(JDAUtils::class.java)
+        ).run()
     }
 
     override fun onBotShutdown() {
