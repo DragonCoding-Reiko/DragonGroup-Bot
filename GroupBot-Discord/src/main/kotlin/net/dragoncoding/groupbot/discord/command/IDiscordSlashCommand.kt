@@ -4,6 +4,7 @@ import net.dragoncoding.groupbot.common.logging.IStatus
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import java.util.*
 
@@ -63,6 +64,8 @@ interface IDiscordSlashCommand {
     val acknowledgeButton: Boolean
     val acknowledgeModal: Boolean
 
+    var deleteOriginal: Boolean
+
     fun runCommand(event: SlashCommandInteractionEvent): IStatus
     fun runButton(event: ButtonInteractionEvent): IStatus
     fun runModal(event: ModalInteractionEvent): IStatus
@@ -72,6 +75,7 @@ interface IDiscordSlashCommand {
     fun onModal(event: ModalInteractionEvent): IStatus
 
     fun getCommandOptions(): List<OptionData>
+    fun getCommandPermission(): DefaultMemberPermissions?
 
     fun generateUuid(): String = UUID.randomUUID().toString()
 
@@ -79,4 +83,18 @@ interface IDiscordSlashCommand {
     fun hasSubCommandGroup(): Boolean = this.subCommandGroupName != null
     fun hasButtonInteraction(): Boolean = this.buttonId != null
     fun hasModalInteraction(): Boolean = this.modalId != null
+
+    fun isButtonId(buttonIdWithName: String): Boolean {
+        if (buttonId == null) return false
+
+        return buttonIdWithName.startsWith(buttonId!!)
+    }
+
+    fun getButtonCommand(buttonIdWithName: String): String? {
+        if (buttonId == null) return null
+        if (buttonIdWithName.length <= buttonId!!.length) return null
+
+        //1 = the "-" connecting buttonId and the button name
+        return buttonIdWithName.substring(buttonId!!.length + 1)
+    }
 }

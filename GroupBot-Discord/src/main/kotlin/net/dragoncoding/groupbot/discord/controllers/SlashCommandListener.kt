@@ -48,15 +48,15 @@ class SlashCommandListener : ListenerAdapter(), IDiscordEventListener {
     }
 
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
-        val buttonCommand = commandsWithButtonResponse.firstOrNull { event.componentId == it.buttonId }
+        val buttonCommand = commandsWithButtonResponse.firstOrNull { it.isButtonId(event.componentId) }
         if (buttonCommand == null) {
-            LOGGER.error("Was not able to retrieve the button command.")
+            LOGGER.error("Was not able to retrieve the button command (${event.componentId}]).")
             event.reply("I cannot process this button at the moment. Sorry for this inconvenience!")
                 .setEphemeral(true)
                 .queue()
             return
         }
-        commandsWithButtonResponse.removeIf { event.componentId == it.buttonId }
+        commandsWithButtonResponse.removeIf { it.isButtonId(event.componentId) }
 
         val executionStatus = buttonCommand.onButton(event)
         if (executionStatus.isNotOk) return

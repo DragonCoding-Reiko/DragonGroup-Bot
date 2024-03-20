@@ -87,8 +87,13 @@ class JDACommandManager(
 
         for (commandToAdd in this.commands) {
             if (commandToAdd.isSimpleCommand() && !commands.contains(commandToAdd.name)) {
-                commands[commandToAdd.name] = Commands.slash(commandToAdd.name, commandToAdd.description)
+                val command = Commands.slash(commandToAdd.name, commandToAdd.description)
                     .addOptions(*commandToAdd.getCommandOptions().toTypedArray())
+
+                if (commandToAdd.getCommandPermission() != null)
+                    command.setDefaultPermissions(commandToAdd.getCommandPermission()!!)
+
+                commands[commandToAdd.name] = command
                 continue
             }
             var commandRoot = commands[commandToAdd.parentCommandName]
