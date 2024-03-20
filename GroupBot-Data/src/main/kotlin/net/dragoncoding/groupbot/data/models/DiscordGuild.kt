@@ -11,6 +11,6 @@ class DiscordGuild(
     @Column(name = "joined")
     var joined: Boolean = true,
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = [CascadeType.ALL])
-    val specialChannels: List<DiscordGuildChannel> = ArrayList()
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = [CascadeType.ALL])
+    val specialChannels: MutableList<DiscordGuildChannel> = ArrayList()
 )

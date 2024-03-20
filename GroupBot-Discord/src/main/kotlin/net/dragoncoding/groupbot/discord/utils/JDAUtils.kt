@@ -10,6 +10,14 @@ class JDAUtils {
     @Autowired
     lateinit var guildRepository: DiscordGuildRepository
 
+    fun getGuild(guildId: Long): DiscordGuild {
+        return guildRepository
+            .findFirstByGuildIdAndJoinedTrue(guildId)
+            .orElse(onGuildJoin(guildId))
+    }
+
+    fun saveGuild(guild: DiscordGuild) = guildRepository.save(guild)
+
     fun onGuildLeave(guildId: Long): DiscordGuild {
         val guild = guildRepository.findById(guildId).orElse(DiscordGuild(guildId = guildId))
 
